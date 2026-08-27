@@ -28,7 +28,7 @@ jobs:
     - name: Compilar Script con PyInstaller (Imágenes, Playwright y CustomTkinter)
       run: |
         # Se agrega --collect-all customtkinter para empaquetar librerías de Tcl/Tk e interfaz
-        pyinstaller --onefile --noconsole --collect-all playwright --collect-all customtkinter --add-data "app/assets;app/assets" main.py
+        pyinstaller --onefile --noconsole --collect-all playwright --collect-all customtkinter --collect-data tkinter --add-data "app/assets;app/assets" main.py
 
     - name: Preparar carpeta de entrega para el usuario
       run: |
