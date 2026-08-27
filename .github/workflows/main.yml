@@ -25,10 +25,10 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
 
-    - name: Compilar Script con PyInstaller (Imágenes y Playwright)
+    - name: Compilar Script con PyInstaller (Imágenes, Playwright y CustomTkinter)
       run: |
-        # Compila el ejecutable (se guardará en la carpeta dist/)
-        pyinstaller --onefile --noconsole --collect-all playwright --add-data "app/assets;app/assets" main.py
+        # Se agrega --collect-all customtkinter para empaquetar librerías de Tcl/Tk e interfaz
+        pyinstaller --onefile --noconsole --collect-all playwright --collect-all customtkinter --add-data "app/assets;app/assets" main.py
 
     - name: Preparar carpeta de entrega para el usuario
       run: |
@@ -49,6 +49,5 @@ jobs:
     - name: Guardar el entregable como Artefacto (ZIP)
       uses: actions/upload-artifact@v4
       with:
-        name: wizard-finalizacion-folios
-        # Apuntamos a la carpeta completa en lugar de solo al .exe
+        name: bots-oficios-aseg
         path: entregable/
