@@ -1,4 +1,4 @@
-name: Compilar Python + Playwright a EXE desde Features
+name: Compilar Python + Playwright a EXE (Win) y APP (Mac)
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  # ==========================================
+  # JOB 1: COMPILACIÓN PARA WINDOWS (.exe)
+  # ==========================================
+  build-windows:
     runs-on: windows-latest
-
     steps:
     - name: Descargar el código del repositorio
       uses: actions/checkout@v4
@@ -25,29 +27,64 @@ jobs:
         pip install pyinstaller
         pip install -r requirements.txt
 
-    - name: Compilar Script con PyInstaller (Imágenes, Playwright y CustomTkinter)
+    - name: Compilar Script con PyInstaller (Windows)
       run: |
-        # Se agrega --collect-all customtkinter para empaquetar librerías de Tcl/Tk e interfaz
+        # Separador ; para Windows
         pyinstaller --onefile --noconsole --collect-all playwright --collect-all customtkinter --collect-data tkinter --add-data "app/assets;app/assets" main.py
 
     - name: Preparar carpeta de entrega para el usuario
       run: |
-        # Crear la carpeta
         New-Item -ItemType Directory -Force -Path entregable
-        # Mover el ejecutable
         Move-Item -Path dist\main.exe -Destination entregable\
-        # Copiar el Excel usando rutas relativas explícitas
         Copy-Item -Path .\Oficios.xlsx -Destination entregable\
-
-        # Crear el archivo usuario_sugo.json con campos vacíos
-        $datos = @{
-            user = ""
-            password = ""
-        }
+        $datos = @{ user = ""; password = "" }
         $datos | ConvertTo-Json | Out-File -FilePath "entregable\usuario_sugo.json" -Encoding utf8
 
-    - name: Guardar el entregable como Artefacto (ZIP)
+    - name: Guardar el entregable como Artefacto (Windows)
       uses: actions/upload-artifact@v4
       with:
-        name: bots-oficios-aseg
+        name: bots-oficios-aseg-windows
+        path: entregable/
+
+  # ==========================================
+  # JOB 2: COMPILACIÓN PARA MAC (.app)
+  # ==========================================
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Descargar el código del repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Instalar dependencias y PyInstaller
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Compilar Script con PyInstaller (Mac)
+      run: |
+        # IMPORTANTE: En Mac se usa ":" en lugar de ";" para separar el origen/destino en add-data
+        # Se usa --windowed en lugar de --onefile para generar un paquete .app correcto
+        pyinstaller --windowed --noconsole --collect-all playwright --collect-all customtkinter --collect-data tkinter --add-data "app/assets:app/assets" main.py
+
+    - name: Preparar carpeta de entrega para el usuario (Bash)
+      run: |
+        # En Mac usamos comandos de Bash
+        mkdir entregable
+        # PyInstaller genera un paquete "main.app" (que técnicamente es una carpeta)
+        mv dist/main.app entregable/
+        cp Oficios.xlsx entregable/
+        # Crear el JSON
+        echo '{"user": "", "password": ""}' > entregable/usuario_sugo.json
+
+    - name: Guardar el entregable como Artefacto (Mac)
+      uses: actions/upload-artifact@v4
+      with:
+        name: bots-oficios-aseg-mac
         path: entregable/
