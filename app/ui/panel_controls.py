@@ -86,8 +86,8 @@ class PanelControls(ctk.CTkFrame):
         self.linea_separadora.pack(fill="x", padx=20, pady=(8, 6))
 
         # Botones de Acción usando los Callbacks recibidos por parámetro
-        # self.btn_asignacion = self.crear_boton(" Asignación", cmd_asignacion)
-        # self.btn_asignacion.pack(pady=3, padx=20, fill="x")
+        self.btn_asignacion = self.crear_boton(" Asignación", cmd_asignacion)
+        self.btn_asignacion.pack(pady=3, padx=20, fill="x")
 
         self.btn_cierre_oficio = self.crear_boton("  Asignar Juridico - Cierre", cmd_cierre_oficio)
         self.btn_cierre_oficio.pack(pady=3, padx=20, fill="x")
